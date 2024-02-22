@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Request
+from flask_cors import CORS
 from pymongo import MongoClient
 load_dotenv()
 
@@ -9,6 +10,8 @@ db = client["lounge"]
 collection = db["players"]
 
 app = Flask(__name__)
+
+cors = CORS(app)
 
 @app.route("/api/leaderboard")
 def get_data():
