@@ -1,0 +1,20 @@
+import os
+from dotenv import load_dotenv
+from flask import Flask, jsonify
+from pymongo import MongoClient
+load_dotenv()
+
+client = MongoClient(f"mongodb://{os.getenv('MONGODB_HOST')}:27017/")
+db = client["lounge"]
+collection = db["players"]
+
+app = Flask(__name__)
+
+@app.route("/api/leaderboard")
+def get_data():
+    data = list(collection.find({}, {"_id": 0}))
+    print(data)
+    return data
+
+if __name__ == "__main__":
+    app.run()
