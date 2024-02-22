@@ -11,7 +11,7 @@ collection = db["players"]
 
 app = Flask(__name__)
 
-cors = CORS(app)
+cors = CORS(app, origins="*")
 
 @app.route("/api/leaderboard")
 def get_data():
