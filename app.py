@@ -1,23 +1,47 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, jsonify, Request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from pymongo import MongoClient
+import hmac
+import hashlib
 load_dotenv()
 
 client = MongoClient(f"mongodb://{os.getenv('MONGODB_HOST')}:27017/")
 db = client["lounge"]
 collection = db["players"]
 
+API_SECRET = os.getenv("API_SECRET")
+
 app = Flask(__name__)
 
 cors = CORS(app, origins="*")
 
-@app.route("/api/leaderboard")
+def verify_hmac(data: str, signature: str):
+  hashed = hmac.new(API_SECRET.encode('utf-8'), data.encode(), digestmod=hashlib.sha256).hexdigest()
+  return hashed == signature
+
+@app.get("/api/leaderboard")
 def get_data():
     data = list(collection.find({}, {"_id": 0}))
-    print(data)
     return data
+
+@app.post("/api/update")
+def update_mmr():
+    signature: str = request.headers.get('X-HMAC-Signature')
+    data: list = request.json
+    
+    if not data or not signature:
+        return jsonify({'error': 'Missing data or signature'}), 400
+
+    if not verify_hmac(str(data), signature):
+        return jsonify({'error': 'Invalid signature'}), 403
+    
+    for item in data:
+        collection.update_one({"name": item[0]}, {"$set": {"mmr": item[1]}})
+    
+    return jsonify({'message': 'Data submitted successfully'}), 200
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
