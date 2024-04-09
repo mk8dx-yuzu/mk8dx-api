@@ -48,7 +48,7 @@ def update_mmr():
 
         collection.update_one({"name": name}, {"$set": {"mmr": mmr}})
         collection.update_one({"name": name}, {"$push": {"history": mmr - current_mmr}})
-        collection.update_one({"name": name}, {"$inc": {"wins" if mmr > current_mmr else "losses": mmr - current_mmr}})
+        collection.update_one({"name": name}, {"$inc": {"wins" if mmr > current_mmr else "losses": 1}})
 
     return jsonify({'message': 'Data submitted successfully'}), 200
 
