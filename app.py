@@ -38,8 +38,18 @@ def update_mmr():
         return jsonify({'error': 'Invalid signature'}), 403
     
     for item in data:
-        collection.update_one({"name": item[0]}, {"$set": {"mmr": item[1]}})
-    
+        name: str = item[0]
+        mmr: int = item[1]
+        
+        if type(name) != str or type(mmr) != int:
+            return jsonify({'error': 'Invalid Data Format'}), 400 
+        
+        current_mmr: int = collection.find_one({"name": name})['mmr']
+
+        collection.update_one({"name": name}, {"$set": {"mmr": mmr}})
+        collection.update_one({"name": name}, {"$push": {"history": mmr - current_mmr}})
+        collection.update_one({"name": name}, {"$inc": {"wins" if mmr > current_mmr else "losses": mmr - current_mmr}})
+
     return jsonify({'message': 'Data submitted successfully'}), 200
 
 
