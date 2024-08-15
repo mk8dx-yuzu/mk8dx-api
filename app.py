@@ -1,6 +1,9 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
+from flask_limiter import Limiter
+from flask_limiter.errors import RateLimitExceeded
+from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 from pymongo import MongoClient
 import hmac
@@ -17,12 +20,23 @@ app = Flask(__name__)
 
 cors = CORS(app, origins="*")
 
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["5 per minute"],
+)
+
+@app.errorhandler(RateLimitExceeded)
+def ratelimit_exceeded(error):
+    return jsonify({'error': 'Too Many Requests'}), 429
+
 def verify_hmac(data: str, signature: str):
   hashed = hmac.new(API_SECRET.encode('utf-8'), data.encode(), digestmod=hashlib.sha256).hexdigest()
   return hashed == signature
 
 @app.get("/api/leaderboard")
 def get_data():
+    return "hi"
     data = list(collection.find({}, {"_id": 0}))
     return data
 
