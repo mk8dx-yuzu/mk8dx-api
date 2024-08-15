@@ -36,7 +36,6 @@ def verify_hmac(data: str, signature: str):
 
 @app.get("/api/leaderboard")
 def get_data():
-    return "hi"
     data = list(collection.find({}, {"_id": 0}))
     return data
 
