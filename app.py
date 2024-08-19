@@ -33,34 +33,20 @@ limiter = Limiter(
 def ratelimit_exceeded(error):
     return jsonify({'error': 'Too Many Requests'}), 429
 
-def verify_hmac(data: str, signature: str):
+def verify_api(data: str, signature: str):
+  hashed = hmac.new(API_SECRET.encode('utf-8'), data.encode(), digestmod=hashlib.sha256).hexdigest()
+  return hashed == signature
+
+def verify_pass(data: str, signature: str):
   hashed = hmac.new(API_SECRET.encode('utf-8'), data.encode(), digestmod=hashlib.sha256).hexdigest()
   return hashed == signature
 
 @app.post("/api/passwd")
 def passwd():
-    payload = str(request.json).encode()
-
-    calculated_signature = f'sha256={hmac.new(PASS_SECRET.encode("utf-8"), payload, hashlib.sha256).hexdigest()}'
-
-    header_signature = request.headers.get('X-Hub-Signature-256')
-
-    print(calculated_signature)
-    print(header_signature)
-    print(PASS_SECRET)
-
-    def timing_safe_equals(a, b):
-        if len(a) != len(b):
-            return False
-        result = 0
-        for x, y in zip(a, b):
-            result |= x ^ y
-        return result == 0
-
-    if timing_safe_equals(calculated_signature.encode('utf-8'), header_signature.encode('utf-8')):
+    if verify_pass(str(request.json), request.headers.get('X-Hub-Signature-256')):
         # do bot stuff here
         return jsonify({'message': 'Cool!'}), 200
-    return jsonify({'error': f"nope: sig: {header_signature}, in-utf8: {header_signature.encode('utf-8')}"}), 400
+    return jsonify({'error': "nope"}), 400
 
 @app.get("/api/leaderboard")
 def get_data():
@@ -75,7 +61,7 @@ def update_mmr():
     if not data or not signature:
         return jsonify({'error': 'Missing data or signature'}), 400
 
-    if not verify_hmac(str(data), signature):
+    if not verify_api(str(data), signature):
         return jsonify({'error': 'Invalid signature'}), 403
     
     for item in data:
