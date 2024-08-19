@@ -1,4 +1,5 @@
 import os
+import subprocess
 import hmac
 import json
 
@@ -48,6 +49,12 @@ def passwd():
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
         # do bot stuff here
+        result = subprocess.run(
+            ["/bin/sh", "-c", "ls"],
+            capture_output=True,
+            text=True
+        )
+        print(result.stdout)
         return jsonify({'message': 'Cool!'}), 200
     return jsonify({'error': "nope"}), 400
 
