@@ -50,7 +50,13 @@ def passwd():
     if hmac.compare_digest(incoming_signature, calculated_signature):
         # do bot stuff here
         result = subprocess.run(
-            ["/bin/sh", "-c", "echo lounge69420 > /home/admin/bot-persistent/password.txt"],
+            ["/bin/sh", "-c", "cd /home/admin/lounge-pass && git pull git@github.com:mk8dx-yuzu/lounge-pass"],
+            capture_output=True,
+            text=True
+        )
+        print(result.stdout)
+        result = subprocess.run(
+            ["/bin/sh", "-c", "cat /home/admin/lounge-pass/password.txt > /home/admin/bot-persistent/password.txt"],
             capture_output=True,
             text=True
         )
