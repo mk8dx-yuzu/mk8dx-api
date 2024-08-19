@@ -45,6 +45,9 @@ def passwd():
 
     header_signature = request.headers.get('X-Hub-Signature-256')
 
+    print(calculated_signature)
+    print(header_signature)
+
     def timing_safe_equals(a, b):
         if len(a) != len(b):
             return False
