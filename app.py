@@ -39,7 +39,7 @@ def verify_hmac(data: str, signature: str):
 
 @app.post("/api/passwd")
 def passwd():
-    payload = json.dumps(request.json).encode('utf-8')
+    payload = str(request.json).encode()
 
     calculated_signature = f'sha256={hmac.new(PASS_SECRET.encode("utf-8"), payload, hashlib.sha256).hexdigest()}'
 
@@ -47,6 +47,7 @@ def passwd():
 
     print(calculated_signature)
     print(header_signature)
+    print(PASS_SECRET)
 
     def timing_safe_equals(a, b):
         if len(a) != len(b):
