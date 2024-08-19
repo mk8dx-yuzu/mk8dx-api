@@ -37,7 +37,7 @@ def verify_hmac(data: str, signature: str):
   hashed = hmac.new(API_SECRET.encode('utf-8'), data.encode(), digestmod=hashlib.sha256).hexdigest()
   return hashed == signature
 
-@app.get("/api/passwd")
+@app.post("/api/passwd")
 def passwd():
     payload = json.dumps(request.json).encode('utf-8')
 
