@@ -56,7 +56,7 @@ def passwd():
     if timing_safe_equals(calculated_signature.encode('utf-8'), header_signature.encode('utf-8')):
         # do bot stuff here
         return jsonify({'message': 'Cool!'}), 200
-    return jsonify({'error': f'nope: sig: {header_signature}, in-utf8: {header_signature.encode('utf-8')}'}), 400
+    return jsonify({'error': f"nope: sig: {header_signature}, in-utf8: {header_signature.encode('utf-8')}"}), 400
 
 @app.get("/api/leaderboard")
 def get_data():
