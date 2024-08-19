@@ -50,7 +50,7 @@ def passwd():
     if hmac.compare_digest(incoming_signature, calculated_signature):
         # do bot stuff here
         result = subprocess.run(
-            ["/bin/sh", "-c", "cd /home/admin/lounge-pass && git pull git@github.com:mk8dx-yuzu/lounge-pass"],
+            ["/bin/sh", "-c", "cd /home/admin/lounge-pass; git pull git@github.com:mk8dx-yuzu/lounge-pass"],
             capture_output=True,
             text=True
         )
