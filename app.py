@@ -1,4 +1,7 @@
 import os
+import hmac
+import json
+
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_limiter import Limiter
@@ -6,7 +9,6 @@ from flask_limiter.errors import RateLimitExceeded
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 from pymongo import MongoClient
-import hmac
 import hashlib
 load_dotenv()
 
@@ -15,6 +17,7 @@ db = client["lounge"]
 collection = db["players"]
 
 API_SECRET = os.getenv("API_SECRET")
+PASS_SECRET = os.getenv("PASS_SECRET")
 
 app = Flask(__name__)
 
@@ -33,6 +36,27 @@ def ratelimit_exceeded(error):
 def verify_hmac(data: str, signature: str):
   hashed = hmac.new(API_SECRET.encode('utf-8'), data.encode(), digestmod=hashlib.sha256).hexdigest()
   return hashed == signature
+
+@app.get("/api/passwd")
+def passwd():
+    payload = json.dumps(request.json).encode('utf-8')
+
+    calculated_signature = f'sha256={hmac.new(PASS_SECRET.encode("utf-8"), payload, hashlib.sha256).hexdigest()}'
+
+    header_signature = request.headers.get('X-Hub-Signature-256')
+
+    def timing_safe_equals(a, b):
+        if len(a) != len(b):
+            return False
+        result = 0
+        for x, y in zip(a, b):
+            result |= x ^ y
+        return result == 0
+
+    if timing_safe_equals(calculated_signature.encode('utf-8'), header_signature.encode('utf-8')):
+        # do bot stuff here
+        return jsonify({'message': 'Cool!'}), 200
+    return jsonify({'error': 'nope'}), 400
 
 @app.get("/api/leaderboard")
 def get_data():
