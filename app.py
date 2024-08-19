@@ -43,6 +43,8 @@ def verify_pass(data: str, signature: str):
 
 @app.post("/api/passwd")
 def passwd():
+    print(f"incoming sig: {request.headers.get('X-Hub-Signature-256')}")
+    print(f"data: {request.json}")
     if verify_pass(str(request.json), request.headers.get('X-Hub-Signature-256')):
         # do bot stuff here
         return jsonify({'message': 'Cool!'}), 200
