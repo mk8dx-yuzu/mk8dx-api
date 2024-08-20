@@ -44,7 +44,6 @@ def verify_pass(data: str, signature: str):
 
 @app.post("/api/passwd")
 def passwd():
-    print("hi")
     incoming_signature = request.headers.get('X-Hub-Signature-256')
     calculated_signature = f"sha256={hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
 
@@ -54,15 +53,13 @@ def passwd():
             capture_output=True,
             text=True
         )
-        print(result.stdout)
         result2 = subprocess.run(
             ["/bin/bash", "-c", "cp /home/admin/lounge-pass/password.txt /home/admin/persistent/password.txt"],
             capture_output=True,
             text=True
         )
-        print(result2.stdout)
         with open('loggies.txt', 'w') as file:
-            file.write(f"{result.stdout}\n\n{result2.stdout}")
+            file.write(f"{result}\n\n{result2}")
             file.close()
         return jsonify({'message': 'Cool!'}), 200
     return jsonify({'error': "nope"}), 400
