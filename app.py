@@ -49,22 +49,18 @@ def passwd():
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
         os.chdir("/home/admin/lounge-pass")
-        result = subprocess.run(
-            ["/usr/bin/git", "pull", "git@github.com:mk8dx-yuzu/lounge-pass"],
-            capture_output=True,
-            text=True
-        )
+        result = subprocess.run(["/usr/bin/ssh", "-o", "StrictHostKeyChecking=no", "git@github.com:mk8dx-yuzu/lounge-pass", "git pull"], capture_output=True, text=True)
         result2 = subprocess.run(
             ["/usr/bin/cp", "/home/admin/lounge-pass/password.txt", "/home/admin/persistent/password.txt"],
             capture_output=True,
             text=True
         )
-        with open('ok.txt', 'w') as file:
-            file.write("skibidi")
-            file.close()
-        with open('PLEASE.txt', 'w+') as file:
+        os.chdir("/home/admin/api-mk8dx")
+        
+        with open('loggies.txt', 'w+') as file:
             file.write(f"{str(result)}\n\n{str(result2)}")
             file.close()
+        
         return jsonify({'message': 'Cool!'}), 200
     return jsonify({'error': "nope"}), 400
 
