@@ -49,7 +49,7 @@ def passwd():
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
         os.chdir("/home/admin/lounge-pass")
-        result = subprocess.run(["/usr/bin/ssh", "-o", "StrictHostKeyChecking=no", "git@github.com:mk8dx-yuzu/lounge-pass", "git pull"], capture_output=True, text=True)
+        result = subprocess.run(["/usr/bin/git", "pull"], capture_output=True, text=True)
         result2 = subprocess.run(
             ["/usr/bin/cp", "/home/admin/lounge-pass/password.txt", "/home/admin/persistent/password.txt"],
             capture_output=True,
