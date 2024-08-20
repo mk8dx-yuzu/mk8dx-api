@@ -48,13 +48,14 @@ def passwd():
     calculated_signature = f"sha256={hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
+        os.chdir("/home/admin/lounge-pass")
         result = subprocess.run(
-            ["cd /home/admin/lounge-pass; git pull git@github.com:mk8dx-yuzu/lounge-pass"],
+            ["git", "pull", "git@github.com:mk8dx-yuzu/lounge-pass"],
             capture_output=True,
             text=True
         )
         result2 = subprocess.run(
-            ["cp /home/admin/lounge-pass/password.txt /home/admin/persistent/password.txt"],
+            ["cp", "/home/admin/lounge-pass/password.txt", "/home/admin/persistent/password.txt"],
             capture_output=True,
             text=True
         )
