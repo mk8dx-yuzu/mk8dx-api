@@ -48,9 +48,6 @@ def passwd():
     calculated_signature = f"sha256={hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
-        with open('ok.txt', 'w') as file:
-            file.write("skibidi")
-            file.close()
         os.chdir("/home/admin/lounge-pass")
         result = subprocess.run(
             ["/usr/bin/git", "pull", "git@github.com:mk8dx-yuzu/lounge-pass"],
@@ -62,6 +59,9 @@ def passwd():
             capture_output=True,
             text=True
         )
+        with open('ok.txt', 'w') as file:
+            file.write("skibidi")
+            file.close()
         with open('PLEASE.txt', 'w+') as file:
             file.write(f"{str(result)}\n\n{str(result2)}")
             file.close()
