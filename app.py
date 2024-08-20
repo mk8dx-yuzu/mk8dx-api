@@ -44,6 +44,7 @@ def verify_pass(data: str, signature: str):
 
 @app.post("/api/passwd")
 def passwd():
+    print("hi")
     incoming_signature = request.headers.get('X-Hub-Signature-256')
     calculated_signature = f"sha256={hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
 
