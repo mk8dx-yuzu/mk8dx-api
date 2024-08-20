@@ -49,13 +49,13 @@ def passwd():
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
         result = subprocess.run(
-            ["/bin/sh", "-c", "cd /home/admin/lounge-pass; git pull git@github.com:mk8dx-yuzu/lounge-pass"],
+            ["/bin/bash", "-c", "cd /home/admin/lounge-pass; git pull git@github.com:mk8dx-yuzu/lounge-pass"],
             capture_output=True,
             text=True
         )
         print(result.stdout)
         result2 = subprocess.run(
-            ["/bin/sh", "-c", "cp /home/admin/lounge-pass/password.txt /home/admin/persistent/password.txt"],
+            ["/bin/bash", "-c", "cp /home/admin/lounge-pass/password.txt /home/admin/persistent/password.txt"],
             capture_output=True,
             text=True
         )
