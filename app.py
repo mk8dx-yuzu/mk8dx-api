@@ -48,21 +48,19 @@ def passwd():
     calculated_signature = f"sha256={hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
-        result = subprocess.run(
+        result1 = subprocess.run(
             ["/bin/sh", "-c", "cd /home/admin/lounge-pass; git pull git@github.com:mk8dx-yuzu/lounge-pass"],
             capture_output=True,
             text=True
         )
-        result += "\n\n"
-        result += subprocess.run(["/bin/sh", "-c", "ls"], capture_output=True, text=True)
-        result += "\n\n"
-        result += subprocess.run(
+        result2 = subprocess.run(["/bin/sh", "-c", "ls"], capture_output=True, text=True)
+        result3 = subprocess.run(
             ["/bin/sh", "-c", "cat /home/admin/lounge-pass/password.txt > /home/admin/bot-persistent/password.txt"],
             capture_output=True,
             text=True
         )
         with open("persistent/log.txt", "r+") as log:
-            log.write(result)
+            log.write(f"{str(result1)}\n\n{str(result2)}\n\n{str(result3)}")
             log.close()
         return jsonify({'message': 'Cool!'}), 200
     return jsonify({'error': "nope"}), 400
