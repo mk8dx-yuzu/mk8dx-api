@@ -62,7 +62,7 @@ def passwd():
             capture_output=True,
             text=True
         )
-        with open('loggies.txt', 'w') as file:
+        with open('PLEASE.txt', 'w+') as file:
             file.write(f"{str(result)}\n\n{str(result2)}")
             file.close()
         return jsonify({'message': 'Cool!'}), 200
