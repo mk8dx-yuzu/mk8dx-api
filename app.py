@@ -54,7 +54,7 @@ def passwd():
             text=True
         )
         subprocess.run(
-            ["/bin/sh", "-c", "cat /home/admin/lounge-pass/password.txt > /home/admin/bot-persistent/password.txt"],
+            ["/bin/sh", "-c", "cat /home/admin/lounge-pass/password.txt > /home/admin/persistent/password.txt"],
             capture_output=True,
             text=True
         )
