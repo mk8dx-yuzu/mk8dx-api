@@ -44,23 +44,16 @@ def verify_pass(data: str, signature: str):
 
 @app.post("/api/passwd")
 def passwd():
-    incoming_signature = request.headers.get('X-Hub-Signature-256')
-    calculated_signature = f"sha256={hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
+    incoming_signature = request.headers.get('Signature-256')
+    calculated_signature = f"{hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
+    
+    json_data = json.loads(request.data.decode().replace("'", '"'))
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
-        os.chdir("/home/admin/lounge-pass")
-        result = subprocess.run(["/usr/bin/git", "pull"], capture_output=True, text=True)
-        result2 = subprocess.run(
-            ["/usr/bin/cp", "/home/admin/lounge-pass/password.txt", "/home/admin/persistent/password.txt"],
-            capture_output=True,
-            text=True
-        )
-        os.chdir("/home/admin/api-mk8dx")
-        
-        with open('loggies.txt', 'w+') as file:
-            file.write(f"{str(result)}\n\n{str(result2)}")
+        with open('persistent/password.txt', 'w+') as file:
+            file.write(f"{json_data['password']}")
             file.close()
-        
+
         return jsonify({'message': 'Cool!'}), 200
     return jsonify({'error': "nope"}), 400
 
