@@ -13,7 +13,7 @@ from pymongo import MongoClient
 import hashlib
 load_dotenv()
 
-client = MongoClient(f"mongodb://{os.getenv('MONGODB_HOST')}:27017/")
+client = MongoClient(f"{os.getenv('MONGODB_HOST')}")
 db = client["lounge"]
 collection = db["players"]
 
