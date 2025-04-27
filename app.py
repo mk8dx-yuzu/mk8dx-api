@@ -69,7 +69,7 @@ def passwd():
 
 @app.get("/api/leaderboard")
 def get_data():
-    data = list(collection.find({}, {"_id": 0}))
+    data = list(collection.find({"name": {"$ne": "mrboost"}}, {"_id": 0}))
     return data
 
 
