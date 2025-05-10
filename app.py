@@ -66,13 +66,19 @@ def passwd():
         return jsonify({"message": "Cool!"}), 200
     return jsonify({"error": "nope"}), 400
 
+
 @app.get("/api/")
 def get_msg():
     return "Yuzu is a hybrid of mandarin orange and ichang papeda, with a tart and fragrant flavor. It is widely used in East Asian cuisine, especially in Japan, Korea, and China, where it is made into sauces, vinegars, teas, and sweets."
 
+
 @app.get("/api/leaderboard")
 def get_data():
-    data = list(collection.find({"name": {"$ne": "mrboost"}}, {"_id": 0}))
+    data = list(
+        collection.find(
+            {"name": {"$ne": "mrboost"}, "inactive": {"$ne": True}}, {"_id": 0}
+        )
+    )
     return data
 
 
