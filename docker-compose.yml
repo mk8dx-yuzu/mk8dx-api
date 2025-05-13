@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mk8dx-api:
     container_name: mk8dx-api
