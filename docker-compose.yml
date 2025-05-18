@@ -3,6 +3,8 @@ services:
     container_name: mk8dx-api
     image: ghcr.io/mk8dx-yuzu/mk8dx-api:latest
     restart: unless-stopped
+    ports:
+      - 5000:5000
     volumes:
       - ./logs:/app/logs
       - /srv/yuzu-share:/app/data # permissions must be configured
