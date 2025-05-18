@@ -58,13 +58,16 @@ def passwd():
 
     request_data: dict[str, str] = json.loads(request.data.decode().replace("'", '"'))
 
+    target_server: str | None = request_data.get("server", None)
+    new_password: str | None = request_data.get("password", None)
+
     success_msg = {"message": "Cool!"}
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
         # Legacy: Put the password in password.txt for #inmogi-password
-        if not request_data.get("server", None):
+        if not target_server:
             with open("persistent/password.txt", "w+", encoding="utf-8") as file:
-                file.write(f"{request_data['password']}")
+                file.write(new_password)
                 file.close()
         # Update the JSON configuration with the new password
         try:
@@ -73,26 +76,23 @@ def passwd():
             ) as passwords_file:
                 passwords: dict[str, str] = json.load(passwords_file)
 
-            if not passwords.get("server", None):
+            if target_server and not passwords.get(target_server, None):
                 success_msg["server"] = "invalid server"
-                raise Exception
-
-            # Update password in config
-            passwords[
-                request_data.get(
-                    "server",
-                    "EU MAIN 🌍 | LOUNGE → Join Discord to play here! dsc.gg/yuzuonline",
+            elif not target_server:
+                success_msg["server"] = "no server provided, updated pass for eu main"
+                target_server = (
+                    "EU MAIN 🌍 | LOUNGE → Join Discord to play here! dsc.gg/yuzuonline"
                 )
-            ] = (
-                request_data.get("server", request_data.get("password", None)) or "---"
-            )
+            if not passwords.get(target_server, None):
+                # Update password in config
+                passwords[target_server] = new_password
 
-            # Write updated config back to file
-            with open(
-                "persistent/passwords.json", "w", encoding="utf-8"
-            ) as passwords_file:
-                json.dump(passwords, passwords_file, indent=4)
-            success_msg["server"] = "set server pass"
+                # Write updated config back to file
+                with open(
+                    "persistent/passwords.json", "w", encoding="utf-8"
+                ) as passwords_file:
+                    json.dump(passwords, passwords_file, indent=4)
+                success_msg["message"] = "set server pass"
         except:
             pass
 
