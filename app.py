@@ -91,7 +91,7 @@ def passwd():
                 with open(
                     "persistent/passwords.json", "w", encoding="utf-8"
                 ) as passwords_file:
-                    json.dump(passwords, passwords_file, indent=4)
+                    json.dump(passwords, passwords_file, indent=4, ensure_ascii=False)
                 success_msg["message"] = "set server pass"
         except:
             pass
