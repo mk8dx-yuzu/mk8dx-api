@@ -79,7 +79,7 @@ def passwd():
             print(passwords)
             print(target_server)
 
-            if target_server and not passwords.get(target_server, None):
+            if target_server and not target_server in passwords:
                 success_msg["server"] = "invalid server"
             elif not target_server:
                 success_msg["server"] = "no server provided, updated pass for eu main"
