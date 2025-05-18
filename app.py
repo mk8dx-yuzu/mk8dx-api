@@ -86,7 +86,7 @@ def passwd():
                 target_server = (
                     "EU MAIN 🌍 | LOUNGE → Join Discord to play here! dsc.gg/yuzuonline"
                 )
-            if not passwords.get(target_server, None):
+            if target_server:
                 # Update password in config
                 passwords[target_server] = new_password
 
