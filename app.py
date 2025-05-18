@@ -63,12 +63,14 @@ def passwd():
     if hmac.compare_digest(incoming_signature, calculated_signature):
         # Legacy: Put the password in password.txt for #inmogi-password
         if not request_data.get("server", None):
-            with open("persistent/password.txt", "w+") as file:
+            with open("persistent/password.txt", "w+", encoding="utf-8") as file:
                 file.write(f"{request_data['password']}")
                 file.close()
         # Update the JSON configuration with the new password
         try:
-            with open("persistent/passwords.json", "r") as passwords_file:
+            with open(
+                "persistent/passwords.json", "r", encoding="utf-8"
+            ) as passwords_file:
                 passwords: dict[str, str] = json.load(passwords_file)
 
             if not passwords.get("server", None):
@@ -86,7 +88,9 @@ def passwd():
             )
 
             # Write updated config back to file
-            with open("persistent/passwords.json", "w") as passwords_file:
+            with open(
+                "persistent/passwords.json", "w", encoding="utf-8"
+            ) as passwords_file:
                 json.dump(passwords, passwords_file, indent=4)
             success_msg["server"] = "set server pass"
         except:
@@ -102,7 +106,7 @@ def get_passwd():
     calculated_signature = f"{hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
-        with open("persistent/passwords.json", "r") as passwords_file:
+        with open("persistent/passwords.json", "r", encoding="utf-8") as passwords_file:
             return jsonify(json.load(passwords_file)), 200
     return jsonify({"error": "nope"}), 400
 
