@@ -76,6 +76,9 @@ def passwd():
             ) as passwords_file:
                 passwords: dict[str, str] = json.load(passwords_file)
 
+            print(passwords)
+            print(target_server)
+
             if target_server and not passwords.get(target_server, None):
                 success_msg["server"] = "invalid server"
             elif not target_server:
