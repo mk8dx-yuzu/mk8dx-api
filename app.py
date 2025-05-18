@@ -65,25 +65,25 @@ def passwd():
                 file.write(f"{request_data['password']}")
                 file.close()
         # Update the JSON configuration with the new password
-        else:
-            try:
-                with open("persistent/passwords.json", "r") as passwords_file:
-                    passwords = json.load(passwords_file)
+        try:
+            with open("persistent/passwords.json", "r") as passwords_file:
+                passwords = json.load(passwords_file)
 
-                # Update password in config
-                passwords[
-                    request_data.get("server", None)
-                    or "EU MAIN 🌍 | LOUNGE → Join Discord to play here! dsc.gg/yuzuonline"
-                ] = request_data.get("server", "none")
+            # Update password in config
+            passwords[
+                request_data.get(
+                    "server",
+                    "EU MAIN 🌍 | LOUNGE → Join Discord to play here! dsc.gg/yuzuonline",
+                )
+            ] = (
+                request_data.get("server", request_data.get("password", None)) or "---"
+            )
 
-                # Write updated config back to file
-                with open("persistent/passwords.json", "w") as passwords_file:
-                    json.dump(passwords, passwords_file, indent=4)
-            except FileNotFoundError:
-                # Create config file if it doesn't exist
-                passwords = {"password": request_data["password"]}
-                with open("persistent/passwords.json", "w") as passwords_file:
-                    json.dump(passwords, passwords_file, indent=4)
+            # Write updated config back to file
+            with open("persistent/passwords.json", "w") as passwords_file:
+                json.dump(passwords, passwords_file, indent=4)
+        except FileNotFoundError:
+            pass
 
         return jsonify({"message": "Cool!"}), 200
     return jsonify({"error": "nope"}), 400
