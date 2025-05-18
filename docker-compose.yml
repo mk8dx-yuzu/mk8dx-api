@@ -7,7 +7,7 @@ services:
       - 5000:5000
     volumes:
       - ./logs:/app/logs
-      - /srv/yuzu-share:/app/data # permissions must be configured
+      - /srv/yuzu-share:/persistent # permissions must be configured
     env_file:
       - .env
   #watchtower:
