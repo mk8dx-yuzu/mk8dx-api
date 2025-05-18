@@ -56,14 +56,46 @@ def passwd():
     incoming_signature = request.headers.get("Signature-256")
     calculated_signature = f"{hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
 
-    json_data = json.loads(request.data.decode().replace("'", '"'))
+    request_data = json.loads(request.data.decode().replace("'", '"'))
 
     if hmac.compare_digest(incoming_signature, calculated_signature):
-        with open("persistent/password.txt", "w+") as file:
-            file.write(f"{json_data['password']}")
-            file.close()
+        # Legacy: Put the password in password.txt for #inmogi-password
+        if not request_data["server"]:
+            with open("persistent/password.txt", "w+") as file:
+                file.write(f"{request_data['password']}")
+                file.close()
+        # Update the JSON configuration with the new password
+        try:
+            with open("persistent/passwords.json", "r") as passwords_file:
+                passwords = json.load(passwords_file)
+
+            # Update password in config
+            passwords[
+                request_data["server"]
+                or "EU MAIN 🌍 | LOUNGE → Join Discord to play here! dsc.gg/yuzuonline"
+            ] = request_data["password"]
+
+            # Write updated config back to file
+            with open("persistent/passwords.json", "w") as passwords_file:
+                json.dump(passwords, passwords_file, indent=4)
+        except FileNotFoundError:
+            # Create config file if it doesn't exist
+            passwords = {"password": request_data["password"]}
+            with open("persistent/passwords.json", "w") as passwords_file:
+                json.dump(passwords, passwords_file, indent=4)
 
         return jsonify({"message": "Cool!"}), 200
+    return jsonify({"error": "nope"}), 400
+
+
+@app.get("/api/passwd")
+def get_passwd():
+    incoming_signature = request.headers.get("Signature-256")
+    calculated_signature = f"{hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
+
+    if hmac.compare_digest(incoming_signature, calculated_signature):
+        with open("persistent/passwords.json", "r") as passwords_file:
+            return jsonify(json.load(passwords_file)), 200
     return jsonify({"error": "nope"}), 400
 
 
