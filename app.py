@@ -56,7 +56,14 @@ def passwd():
     incoming_signature = request.headers.get("Signature-256")
     calculated_signature = f"{hmac.new(key=PASS_SECRET.encode(), msg=request.data, digestmod=hashlib.sha256).hexdigest()}"
 
-    request_data: dict[str, str] = json.loads(request.data.decode().replace("'", '"'))
+    request_data: dict[str, str] = None
+
+    try:
+        request_data: dict[str, str] = json.loads(request.data.decode().replace("'", '"'))
+        if not isinstance(request_data, dict):
+            return jsonify({"error": "Bad request"}), 400
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON format"}), 400
 
     target_server: str | None = request_data.get("server", None)
     new_password: str | None = request_data.get("password", None)
@@ -96,8 +103,9 @@ def passwd():
                 ) as passwords_file:
                     json.dump(passwords, passwords_file, indent=4, ensure_ascii=False)
                 success_msg["message"] = "set server pass"
-        except:
-            pass
+        except Exception as e:
+            success_msg["error"] = f"Failed to read password file: {str(e)}"
+            print(f"Error reading passwords.json: {e}")
 
         return jsonify(success_msg), 200
     return jsonify({"error": "nope"}), 400
