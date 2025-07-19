@@ -18,6 +18,9 @@ client = MongoClient(f"{os.getenv('MONGODB_HOST')}")
 db = client["season-3-lounge"]
 collection = db["players"]
 
+db_season_3 = client["season-3-lounge"]
+collection_season_3 = db["players"]
+
 API_SECRET = os.getenv("API_SECRET")
 PASS_SECRET = os.getenv("PASS_SECRET")
 
@@ -59,7 +62,9 @@ def passwd():
     request_data: dict[str, str] = None
 
     try:
-        request_data: dict[str, str] = json.loads(request.data.decode().replace("'", '"'))
+        request_data: dict[str, str] = json.loads(
+            request.data.decode().replace("'", '"')
+        )
         if not isinstance(request_data, dict):
             return jsonify({"error": "Bad request"}), 400
     except json.JSONDecodeError:
@@ -131,6 +136,16 @@ def get_msg():
 def get_data():
     data = list(
         collection.find(
+            {"name": {"$ne": "mrboost"}, "inactive": {"$ne": True}}, {"_id": 0}
+        )
+    )
+    return data
+
+
+@app.get("/api/leaderboard/3")
+def get_data():
+    data = list(
+        collection_season_3.find(
             {"name": {"$ne": "mrboost"}, "inactive": {"$ne": True}}, {"_id": 0}
         )
     )
