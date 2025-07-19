@@ -134,18 +134,13 @@ def get_msg():
 
 @app.get("/api/leaderboard")
 def get_data():
-    data = list(
-        collection.find(
-            {"name": {"$ne": "mrboost"}, "inactive": {"$ne": True}}, {"_id": 0}
-        )
-    )
-    return data
+    season = request.args.get("season", type=int) or 3
 
+    db = client[f"season-{season}-lounge"]
+    target_collection = db["players"]
 
-@app.get("/api/leaderboard/3")
-def get_data():
     data = list(
-        collection_season_3.find(
+        target_collection.find(
             {"name": {"$ne": "mrboost"}, "inactive": {"$ne": True}}, {"_id": 0}
         )
     )
