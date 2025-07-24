@@ -148,7 +148,7 @@ def get_data():
     return data
 
 @app.get("/api/mogis")
-def get_data():
+def get_mogi_data():
     season = request.args.get("season", type=int) or 3
 
     db = client[f"season-{season}-lounge"]
