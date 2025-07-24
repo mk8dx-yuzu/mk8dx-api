@@ -156,7 +156,7 @@ def get_mogi_data():
 
     data = list(
         target_collection.find(
-            {"_id": 0}
+            {}, {"_id": 0}
         )
     )
     return data
