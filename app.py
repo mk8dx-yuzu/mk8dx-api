@@ -20,6 +20,7 @@ collection = db["players"]
 
 db_season_3 = client["season-3-lounge"]
 collection_season_3 = db["players"]
+collection_mogis = db["mogis"]
 
 API_SECRET = os.getenv("API_SECRET")
 PASS_SECRET = os.getenv("PASS_SECRET")
@@ -142,6 +143,20 @@ def get_data():
     data = list(
         target_collection.find(
             {"name": {"$ne": "mrboost"}, "inactive": {"$ne": True}}, {"_id": 0}
+        )
+    )
+    return data
+
+@app.get("/api/mogis")
+def get_data():
+    season = request.args.get("season", type=int) or 3
+
+    db = client[f"season-{season}-lounge"]
+    target_collection = db["mogis"]
+
+    data = list(
+        target_collection.find(
+            {"_id": 0}
         )
     )
     return data
