@@ -135,7 +135,7 @@ def get_msg():
 
 @app.get("/api/leaderboard")
 def get_data():
-    season = request.args.get("season", type=int) or 3
+    season = request.args.get("season", type=int) or 4
 
     db = client[f"season-{season}-lounge"]
     target_collection = db["players"]
@@ -149,10 +149,24 @@ def get_data():
 
 @app.get("/api/mogis")
 def get_mogi_data():
-    season = request.args.get("season", type=int) or 3
+    season = request.args.get("season", type=int) or 4
 
     db = client[f"season-{season}-lounge"]
     target_collection = db["mogis"]
+
+    data = list(
+        target_collection.find(
+            {}, {"_id": 0}
+        )
+    )
+    return data
+
+@app.get("/api/guilds")
+def get_guild_data():
+    season = request.args.get("season", type=int) or 4
+
+    db = client[f"season-{season}-lounge"]
+    target_collection = db["guilds"]
 
     data = list(
         target_collection.find(
