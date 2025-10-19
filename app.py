@@ -191,7 +191,8 @@ def get_guild_data():
             }
         }, {
             '$project': {
-                '_id': 0
+                '_id': 0, 
+                'player_ids': 0
             }
         }
     ]
