@@ -4,7 +4,7 @@ import hmac
 import json
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_limiter import Limiter
 from flask_limiter.errors import RateLimitExceeded
 from flask_limiter.util import get_remote_address
@@ -53,6 +53,15 @@ def verify_pass(data: str, signature: str):
         API_SECRET.encode("utf-8"), data.encode(), digestmod=hashlib.sha256
     ).hexdigest()
     return hashed == signature
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, "static"),
+        "favicon.ico",
+        mimetype="image/vnd.microsoft.icon",
+    )
 
 
 @app.post("/api/passwd")
@@ -147,6 +156,7 @@ def get_data():
     )
     return data
 
+
 @app.get("/api/mogis")
 def get_mogi_data():
     season = request.args.get("season", type=int) or 4
@@ -154,12 +164,9 @@ def get_mogi_data():
     db = client[f"season-{season}-lounge"]
     target_collection = db["mogis"]
 
-    data = list(
-        target_collection.find(
-            {}, {"_id": 0}
-        )
-    )
+    data = list(target_collection.find({}, {"_id": 0}))
     return data
+
 
 @app.get("/api/guilds")
 def get_guild_data():
@@ -170,36 +177,31 @@ def get_guild_data():
 
     pipeline = [
         {
-            '$lookup': {
-                'from': 'players', 
-                'localField': 'player_ids', 
-                'foreignField': 'discord_id', 
-                'as': 'players'
+            "$lookup": {
+                "from": "players",
+                "localField": "player_ids",
+                "foreignField": "discord_id",
+                "as": "players",
             }
-        }, {
-            '$addFields': {
-                'players': {
-                    '$map': {
-                        'input': '$players', 
-                        'as': 'player', 
-                        'in': {
-                            'player_id': '$$player.discord_id', 
-                            'name': '$$player.name'
-                        }
+        },
+        {
+            "$addFields": {
+                "players": {
+                    "$map": {
+                        "input": "$players",
+                        "as": "player",
+                        "in": {
+                            "player_id": "$$player.discord_id",
+                            "name": "$$player.name",
+                        },
                     }
                 }
             }
-        }, {
-            '$project': {
-                '_id': 0, 
-                'player_ids': 0
-            }
-        }
+        },
+        {"$project": {"_id": 0, "player_ids": 0}},
     ]
 
-    data = list(
-        target_collection.aggregate(pipeline)
-    )
+    data = list(target_collection.aggregate(pipeline))
 
     return data
 
