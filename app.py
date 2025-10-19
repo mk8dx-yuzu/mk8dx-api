@@ -170,18 +170,40 @@ def get_guild_data():
 
     pipeline = [
         {
-            "$lookup": {
-            "from": 'players',
-            "localField": 'player_ids',
-            "foreignField": 'discord_id',
-            "as": 'players'
+            '$lookup': {
+                'from': 'players', 
+                'localField': 'player_ids', 
+                'foreignField': 'discord_id', 
+                'as': 'players'
             }
-        },
+        }, {
+            '$addFields': {
+                'players': {
+                    '$map': {
+                        'input': '$players', 
+                        'as': 'player', 
+                        'in': {
+                            'player_id': '$$player.discord_id', 
+                            'name': '$$player.name'
+                        }
+                    }
+                }
+            }
+        }, {
+            '$project': {
+                '_id': 0
+            }
+        }
     ]
 
     data = list(
         target_collection.aggregate(pipeline)
     )
+    
+    for guild in data:
+            if 'players' in guild:
+                for player in guild['players']:
+                    player.pop('_id', None)
     return data
 
 
