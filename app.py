@@ -200,11 +200,7 @@ def get_guild_data():
     data = list(
         target_collection.aggregate(pipeline)
     )
-    
-    for guild in data:
-            if 'players' in guild:
-                for player in guild['players']:
-                    player.pop('_id', None)
+
     return data
 
 
