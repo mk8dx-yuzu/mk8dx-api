@@ -168,10 +168,19 @@ def get_guild_data():
     db = client[f"season-{season}-lounge"]
     target_collection = db["guilds"]
 
+    pipeline = [
+        {
+            "$lookup": {
+            "from": 'players',
+            "localField": 'player_ids',
+            "foreignField": 'discord_id',
+            "as": 'players'
+            }
+        },
+    ]
+
     data = list(
-        target_collection.find(
-            {}, {"_id": 0}
-        )
+        target_collection.aggregate(pipeline)
     )
     return data
 
