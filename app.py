@@ -164,7 +164,40 @@ def get_mogi_data():
     db = client[f"season-{season}-lounge"]
     target_collection = db["mogis"]
 
-    data = list(target_collection.find({}, {"_id": 0}))
+    skip = request.args.get("skip_pipeline", type=bool) or False
+
+    if skip:
+        data = list(target_collection.find({}, {"_id": 0}))
+        return data
+    
+    pipeline = [
+        {
+            "$lookup": {
+                "from": "players",
+                "localField": "player_ids",
+                "foreignField": "discord_id",
+                "as": "players",
+            }
+        },
+        {
+            "$addFields": {
+                "players": {
+                    "$map": {
+                        "input": "$players",
+                        "as": "player",
+                        "in": {
+                            "player_id": "$$player.discord_id",
+                            "name": "$$player.name",
+                        },
+                    }
+                }
+            }
+        },
+        {"$project": {"_id": 0, "player_ids": 0}},
+    ]
+
+    data = list(target_collection.aggregate(pipeline))
+
     return data
 
 
@@ -175,6 +208,12 @@ def get_guild_data():
     db = client[f"season-{season}-lounge"]
     target_collection = db["guilds"]
 
+    skip = request.args.get("skip_pipeline", type=bool) or False
+
+    if skip:
+        data = list(target_collection.find({}, {"_id": 0}))
+        return data
+    
     pipeline = [
         {
             "$lookup": {
@@ -233,7 +272,6 @@ def update_mmr():
         )
 
     return jsonify({"message": "Data submitted successfully"}), 200
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
