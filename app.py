@@ -172,28 +172,52 @@ def get_mogi_data():
     
     pipeline = [
         {
-            "$lookup": {
-                "from": "players",
-                "localField": "player_ids",
-                "foreignField": "discord_id",
-                "as": "players",
+            '$lookup': {
+                'from': 'players', 
+                'localField': 'player_ids', 
+                'foreignField': 'discord_id', 
+                'as': 'players'
             }
-        },
-        {
-            "$addFields": {
-                "players": {
-                    "$map": {
-                        "input": "$players",
-                        "as": "player",
-                        "in": {
-                            "player_id": "$$player.discord_id",
-                            "name": "$$player.name",
-                        },
+        }, {
+            '$addFields': {
+                'players': {
+                    '$map': {
+                        'input': '$player_ids', 
+                        'as': 'id', 
+                        'in': {
+                            '$let': {
+                                'vars': {
+                                    'player': {
+                                        '$arrayElemAt': [
+                                            {
+                                                '$filter': {
+                                                    'input': '$players', 
+                                                    'as': 'p', 
+                                                    'cond': {
+                                                        '$eq': [
+                                                            '$$p.discord_id', '$$id'
+                                                        ]
+                                                    }
+                                                }
+                                            }, 0
+                                        ]
+                                    }
+                                }, 
+                                'in': {
+                                    'player_id': '$$player.discord_id', 
+                                    'name': '$$player.name'
+                                }
+                            }
+                        }
                     }
                 }
             }
-        },
-        {"$project": {"_id": 0, "player_ids": 0}},
+        }, {
+            '$project': {
+                '_id': 0, 
+                'player_ids': 0
+            }
+        }
     ]
 
     data = list(target_collection.aggregate(pipeline))
