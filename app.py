@@ -244,13 +244,31 @@ def get_guild_data():
                 'from': 'players', 
                 'localField': 'player_ids', 
                 'foreignField': 'discord_id', 
-                'as': 'players'
+                'as': 'players',
+                'pipeline': [
+                    {
+                        '$match': {
+                            'inactive': {'$ne': True}
+                        }
+                    }
+                ]
             }
         }, {
             '$addFields': {
                 'players': {
                     '$map': {
-                        'input': '$player_ids', 
+                        'input': {
+                            '$filter': {
+                                'input': '$player_ids',
+                                'as': 'id',
+                                'cond': {
+                                    '$in': [
+                                        '$$id',
+                                        '$players.discord_id'
+                                    ]
+                                }
+                            }
+                        },
                         'as': 'id', 
                         'in': {
                             '$let': {
